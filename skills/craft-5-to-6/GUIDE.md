@@ -308,6 +308,38 @@ config serves `/robots.txt` as a static file and returns 404 when there is
 none. Route it to `index.php` when the file doesn't exist, as the example
 nginx config does.
 
+## The built-in MCP server
+
+Craft 6 ships an MCP server. At beta.1 it has 50 tools: elements, drafts,
+revisions, project config, caches, queue, user permissions, maintenance mode,
+search and agent skills. If a Craft 5 MCP plugin did the same job, check
+whether you still need it.
+
+The HTTP server is off by default. It is switched on in the project config
+(`mcp.enabled`, under Settings, Extend, MCP in the control panel). Without
+public user registration the endpoint defaults to `/{cpTrigger}/mcp`, so
+`/admin/mcp` on most sites. It authenticates through OAuth (Laravel
+Passport): the MCP client registers and the user approves it in the control
+panel. Personal access tokens can't be given MCP scopes.
+
+The stdio server needs none of that and works with the HTTP server switched
+off:
+
+```bash
+php artisan craft:mcp:serve --user=1
+```
+
+It acts as the given user (ID, username or email) without authenticating,
+because whoever can run the command can already read the database. Over SSH
+that gives an agent access to a remote instance without opening an HTTP
+endpoint, which is handy for a staging site behind Basic-Auth, where the
+OAuth flow would need exceptions in the proxy:
+
+```bash
+claude mcp add craft-staging -- ssh -T -o BatchMode=yes deploy@example.com \
+  'cd /srv/site && docker compose exec -T -u www-data app php artisan craft:mcp:serve --user=1'
+```
+
 ## How the upgrade was verified
 
 The whole path ran twice from the same pre-upgrade snapshot with identical
