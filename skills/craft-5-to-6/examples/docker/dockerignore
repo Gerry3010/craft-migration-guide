@@ -1,0 +1,12 @@
+.git
+.ddev
+.idea
+.env
+.env.*
+vendor
+node_modules
+data
+storage/*
+!storage/.gitignore
+public/vendor
+public/uploads
